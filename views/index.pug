@@ -1,0 +1,168 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    title LIT - Demo
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js')
+    link(rel='stylesheet', href='https://necolas.github.io/normalize.css/3.0.2/normalize.css')
+    link(rel='stylesheet', href='css/mystyle.css')
+    link(rel='stylesheet', href='https://fonts.googleapis.com/css?family=Roboto:400,300,700&subset=latin,latin-ext')
+  body
+    .container
+      .inputArea.card
+        .categories
+          #literacy.cat-item.cat-active  Literacy 
+          #image-recognition.cat-item  Image Recognition 
+        #literacy-child.content
+          .top
+            h4 Literacy Improvement Technology
+          img.logo(src='/img/logo.png')
+          #letters
+            .item a
+            .item A
+            .item b
+            .item B
+            .item c
+            .item C
+            .item d
+            .item D
+            .item e
+            .item E
+            .item f
+            .item F
+            .item g
+            .item G
+            .item h
+            .item H
+            .item i
+            .item I
+            .item j
+            .item J
+            .item k
+            .item K
+            .item l
+            .item L
+            .item m
+            .item M
+            .item n
+            .item N
+            .item o
+            .item O
+            .item p
+            .item P
+            .item q
+            .item Q
+            .item r
+            .item R
+            .item s
+            .item S
+            .item t
+            .item T
+            .item u
+            .item U
+            .item v
+            .item V
+            .item w
+            .item W
+            .item x
+            .item X
+            .item y
+            .item Y
+            .item z
+            .item Z
+          .main_letter
+            | a
+        #image-recognition-child.content
+          .top
+            h4 Literacy Improvement Technology
+          img.logo(src='/img/logo.png')
+          .options
+            img(src='img/car.jpg')
+            img(src='img/car.jpg')
+            img(src='img/car.jpg')
+            img(src='img/car.jpg')
+          .question
+            | Question
+  script.
+    var questions = ["Please select the car.", "Please select the house.", "Please select the plane.", "Please select the train."];
+    var answers = ["img/car.jpg", "img/house.jpeg", "img/plane.jpeg", "img/train.jpg"];
+    var shuffled = ["img/car.jpg", "img/house.jpeg", "img/plane.jpeg", "img/train.jpg"];
+    var question_set = -999;
+    function newQuestion() {
+    shuffled = shuffle(shuffled);
+    question_set = Math.floor(Math.random()*4);
+    $(".question").html(questions[question_set]);
+    //sendVoiceMessage("q"+question_set);
+    var answer_string = "";
+    for(var i = 0; i < 4; i++) {
+    answer_string += '<img src="'+shuffled[i]+'">';
+    }
+    $(".options").html(answer_string);
+    }
+    $(document).ready(function () {
+    $("#image-recognition").click(newQuestion());
+    $(document).on("click", ".options img",function() {
+    var src = $(this).attr("src");
+    var success = false;
+    for(var i = 0; i < answers.length; i++) {
+    if(src == answers[i] && question_set == i) {
+    success = true;
+    newQuestion();
+    break;
+    }
+    }
+    alert(success ? "Your answer was correct!" : "Your answer was incorrect!");
+    //alert(answers[0]);
+    });
+    $(".categories .cat-item:not(:first)").each(function() {
+    $("#"+$(this).attr("id") + "-child").hide();
+    });
+    $(".categories .cat-item").click(function() {
+    $("#"+$(".cat-active").attr("id") + "-child").hide();
+    $(".cat-active").removeClass("cat-active");
+    $(this).addClass("cat-active");
+    $("#"+$(this).attr("id") + "-child").show();
+    });
+    var inProgress = false;
+    $(".item").click(function () {
+    if(inProgress) {
+    return;
+    }
+    inProgress = true;
+    var query = $(this).html();
+    $(".main_letter").html(query);
+    sendVoiceMessage(query);
+    });
+    });
+    function sendVoiceMessage(query) {
+    $.post("/",
+    {
+    query: query
+    },
+    function (data, status) {
+    console.log(data);
+    console.log(status);
+    if (status === "success") {
+    //document.getElementById('sound1').play();
+    var voice = "voice.mp3";
+    $('<audio src="/' + voice + '?noCache=' + Math.floor(Math.random() * 1000000) + '" type="audio/mpeg" autoplay controls></audio>');
+    }
+    inProgress = false;
+    }).fail(function() {
+    inProgress = false;
+    });
+    }
+    function shuffle(array) {
+    var currentIndex = array.length, temporaryValue, randomIndex;
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+    }
+    return array;
+    }

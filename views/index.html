@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>LIT - Demo</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://necolas.github.io/normalize.css/3.0.2/normalize.css">
+    <link rel="stylesheet" href="../public/css/mystyle.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300,700&amp;subset=latin,latin-ext">
+	
+  </head>
+  <body>
+    <div class="container">
+      <div class="inputArea card">
+	   
+	   <div class="categories">
+	   <div class="cat-item cat-active" id="literacy"> Literacy </div>
+	   <div class="cat-item" id="image-recognition"> Image Recognition </div>
+	   </div>
+        <div class="content" id="literacy-child">
+          <div class="top">
+            <h4>Literacy Improvement Technology</h4>
+          </div><img src="/img/logo.png" class="logo">
+		  <div id="letters">
+			<div class="item">a</div>
+			<div class="item">A</div>
+			<div class="item">b</div>
+			<div class="item">B</div>
+			<div class="item">c</div>
+			<div class="item">C</div>
+			<div class="item">d</div>
+			<div class="item">D</div>
+			<div class="item">e</div>
+			<div class="item">E</div>
+			<div class="item">f</div>
+			<div class="item">F</div>
+			<div class="item">g</div>
+			<div class="item">G</div>
+			<div class="item">h</div>
+			<div class="item">H</div>
+			<div class="item">i</div>
+			<div class="item">I</div>
+			<div class="item">j</div>
+			<div class="item">J</div>
+			<div class="item">k</div>
+			<div class="item">K</div>
+			<div class="item">l</div>
+			<div class="item">L</div>
+			<div class="item">m</div>
+			<div class="item">M</div>
+			<div class="item">n</div>
+			<div class="item">N</div>
+			<div class="item">o</div>
+			<div class="item">O</div>
+			<div class="item">p</div>
+			<div class="item">P</div>
+			<div class="item">q</div>
+			<div class="item">Q</div>
+			<div class="item">r</div>
+			<div class="item">R</div>
+			<div class="item">s</div>
+			<div class="item">S</div>
+			<div class="item">t</div>
+			<div class="item">T</div>
+			<div class="item">u</div>
+			<div class="item">U</div>
+			<div class="item">v</div>
+			<div class="item">V</div>
+			<div class="item">w</div>
+			<div class="item">W</div>
+			<div class="item">x</div>
+			<div class="item">X</div>
+			<div class="item">y</div>
+			<div class="item">Y</div>
+			<div class="item">z</div>
+			<div class="item">Z</div>
+		  </div>
+            
+		
+		<div class="main_letter">
+		a
+		</div>
+        </div>
+		<div class="content" id="image-recognition-child">
+          <div class="top">
+            <h4>Literacy Improvement Technology</h4>
+          </div>
+		  <img src="/img/logo.png" class="logo">
+		  <div class="options">
+			<img src="../public/img/car.jpg" />
+			<img src="../public/img/car.jpg" />
+			<img src="../public/img/car.jpg" />
+			<img src="../public/img/car.jpg" />
+		  </div>
+		  <div class="question">
+			Question
+		  </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+	var questions = ["Please select the car.", "Please select the house.", "Please select the plane.", "Please select the train."];
+	var answers = ["../public/img/car.jpg", "../public/img/house.jpeg", "../public/img/plane.jpeg", "../public/img/train.jpg"];
+	var shuffled = ["../public/img/car.jpg", "../public/img/house.jpeg", "../public/img/plane.jpeg", "../public/img/train.jpg"];
+	
+	var question_set = -999;
+	function newQuestion() {
+		shuffled = shuffle(shuffled);
+		question_set = Math.floor(Math.random()*4);
+		$(".question").html(questions[question_set]);
+		//sendVoiceMessage("q"+question_set);
+		var answer_string = "";
+		for(var i = 0; i < 4; i++) {
+			answer_string += '<img src="'+shuffled[i]+'">';
+		}
+		$(".options").html(answer_string);
+	}
+	
+    $(document).ready(function () {
+	
+		$("#image-recognition").click(newQuestion());
+		
+		$(document).on("click", ".options img",function() {
+			var src = $(this).attr("src");
+			var success = false;
+			for(var i = 0; i < answers.length; i++) {
+				if(src == answers[i] && question_set == i) {
+					success = true;
+					newQuestion();
+					break;
+				}
+			}
+			alert(success ? "Your answer was correct!" : "Your answer was incorrect!");
+			//alert(answers[0]);
+		});
+		$(".categories .cat-item:not(:first)").each(function() {
+			$("#"+$(this).attr("id") + "-child").hide();
+		});
+		$(".categories .cat-item").click(function() {
+			$("#"+$(".cat-active").attr("id") + "-child").hide();
+			$(".cat-active").removeClass("cat-active");
+			$(this).addClass("cat-active");
+			$("#"+$(this).attr("id") + "-child").show();
+		});
+		var inProgress = false;
+    	$(".item").click(function () {
+			if(inProgress) {
+				return;
+			}
+			inProgress = true;
+    		var query = $(this).html();
+			$(".main_letter").html(query);
+    		sendVoiceMessage(query);
+    	});
+    });
+	function sendVoiceMessage(query) {
+		$.post("/",
+			{
+				query: query
+			},
+			function (data, status) {
+				console.log(data);
+				console.log(status);
+				if (status === "success") {
+					//document.getElementById('sound1').play();
+					var voice = "voice.mp3";
+					$('<audio src="/' + voice + '?noCache=' + Math.floor(Math.random() * 1000000) + '" type="audio/mpeg" autoplay controls></audio>');
+				}
+				inProgress = false;
+			}).fail(function() {
+				inProgress = false;
+			});
+	}
+	function shuffle(array) {
+	  var currentIndex = array.length, temporaryValue, randomIndex;
+
+	  // While there remain elements to shuffle...
+	  while (0 !== currentIndex) {
+
+		// Pick a remaining element...
+		randomIndex = Math.floor(Math.random() * currentIndex);
+		currentIndex -= 1;
+
+		// And swap it with the current element.
+		temporaryValue = array[currentIndex];
+		array[currentIndex] = array[randomIndex];
+		array[randomIndex] = temporaryValue;
+	  }
+
+	  return array;
+	}
+	
+  </script>
+</html>
